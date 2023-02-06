@@ -10,16 +10,58 @@ _use_timestamp = _dt.datetime.strptime(
     "%Y-%m-%d %H:%M:%S",
 )
 
-def test_make_db_name(sldb_test_url: str):
-    url = _dbu.make_url(sldb_test_url)
-    if isinstance(url, _types.ApiError) or url.database is None:
-        raise Exception(f"Problem with the sldb_test_url being used: {sldb_test_url}")
+
+def test_make_db_name():
     created_name = _dbu.make_db_name(
-        url.database,
+        "my_database",
         append="My appended string",
         at_timestamp=_use_timestamp,
     )
     _TC.assertEqual(
         created_name,
-        "20220423140534_test_my_appended_string",
+        "20220423140534_my_database_my_appended_string",
+    )
+
+
+def test_make_db_name_long():
+    created_name = _dbu.make_db_name(
+        "my_database",
+        append="My appended and very long test name string",
+        at_timestamp=_use_timestamp,
+    )
+    _TC.assertEqual(
+        created_name,
+        "20220423140534_my_database_my_appended_and_very_long_tes5119",
+    )
+
+
+def test_make_db_name_no_timestamp():
+    created_name = _dbu.make_db_name(
+        "my_database",
+        append="My appended string",
+    )
+    _TC.assertEqual(
+        created_name,
+        "my_database_my_appended_string",
+    )
+
+
+def test_make_db_name_no_append():
+    created_name = _dbu.make_db_name(
+        "my_database",
+        at_timestamp=_use_timestamp,
+    )
+    _TC.assertEqual(
+        created_name,
+        "20220423140534_my_database",
+    )
+
+
+def test_make_db_name_no_extra():
+    created_name = _dbu.make_db_name(
+        "my_database",
+    )
+    _TC.assertEqual(
+        created_name,
+        "my_database",
     )
