@@ -43,7 +43,7 @@ def make_db_name(
     the postgres shortening algorithm, the timestamp will still be present so the user can
     know which databases were created most recently.
     """
-    new_name = "-".join(
+    new_name = "_".join(
         [
             *(
                 [at_timestamp.strftime("%Y%m%d%H%M%S")]
@@ -67,7 +67,7 @@ def make_url(conn_str: str) -> _sae.URL | _types.ApiError:
         return _types.ApiError(message="Invalid URL")
 
 
-def destroy_database(conn_str: _sae.URL):
+def drop_database(conn_str: _sae.URL | str):
     """Uses the provided connection string to ensure that the database it points to does not
     exist.
     """
@@ -75,7 +75,7 @@ def destroy_database(conn_str: _sae.URL):
         _su.drop_database(str(conn_str))
 
 
-def create_database(conn_str: _sae.URL):
+def create_database(conn_str: _sae.URL | str):
     """Uses the provided connection string to ensure that the database it points to exists.
     If the database already exists, then it will destroy and recreate it.
 
@@ -84,6 +84,6 @@ def create_database(conn_str: _sae.URL):
     using the database, then will use the admin credentials to create the datbase, and then grant
     creation privileges to the non-admin user.
     """
-    destroy_database(conn_str)
+    drop_database(conn_str)
     if not _su.database_exists(str(conn_str)):
         _su.create_database(str(conn_str))

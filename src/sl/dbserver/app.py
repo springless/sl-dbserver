@@ -30,6 +30,8 @@ def create_db(args: _types.CreateDbArgs = _fapi.Body()) -> _types.CreatedDb:
         database=conn_url.database + "-" + slugify(args.append_name)
     )
 
+    _dbu.create_database(new_conn_url)
+
     return _types.CreatedDb(url=str(new_conn_url))
 
 
