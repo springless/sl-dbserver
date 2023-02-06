@@ -20,13 +20,14 @@ requires = [
 ]
 
 dev_requires = [
-    'pytest         >= 7, < 8',
-    'pytest-cov     >= 4, < 5',
-    'pytest-asyncio >= 0.17, < 1',
-    'mypy           >= 0.812',
-    'uvicorn[standard] >= 0, < 1',
-    'requests          >= 2, < 3', # for starlette testing
+    'pytest                >= 7, < 8',
+    'pytest-cov            >= 4, < 5',
+    'pytest-asyncio        >= 0.17, < 1',
+    'mypy                  >= 0.812',
+    'uvicorn[standard]     >= 0, < 1',
+    'requests              >= 2, < 3', # for starlette testing
     'types-python-dateutil >= 2, < 3', # Types for dateutil (for mypy)
+    'black                 >= 23, < 24',
 ]
 
 setup(
