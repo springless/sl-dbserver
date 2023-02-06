@@ -12,6 +12,7 @@ requires = [
     'python-dateutil              >= 2, < 4',
     'sqlalchemy-utils             >= 0, < 1',
     'psycopg2-binary              >= 2, < 3',
+    'python-slugify               >= 7',
 
     # For server
     'starlette                    >= 0, < 1',
