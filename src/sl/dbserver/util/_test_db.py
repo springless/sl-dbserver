@@ -1,7 +1,6 @@
 from unittest import TestCase as _TestCase
 import datetime as _dt
-from . import db_util as _dbu
-from . import types as _types
+from . import db as _dbu
 
 _TC = _TestCase()
 

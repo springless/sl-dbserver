@@ -3,7 +3,7 @@ import fastapi as _fapi
 import dataclasses as _dc
 from slugify import slugify
 from pydantic import BaseModel
-from . import db_util as _dbu
+from .util import db as _dbu
 from . import types as _types
 
 

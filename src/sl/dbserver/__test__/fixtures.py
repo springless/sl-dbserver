@@ -1,4 +1,11 @@
 import pytest as _pytest
+import sqlalchemy as _sa
+from .db import models as _m
+
+
+@_pytest.fixture(scope="function")
+def sldb_test_schema() -> _sa.MetaData:
+    return _m.metadata
 
 
 @_pytest.fixture(scope="function")

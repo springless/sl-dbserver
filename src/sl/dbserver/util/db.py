@@ -4,7 +4,7 @@ import sqlalchemy.exc as _saex
 import datetime as _dt
 import slugify as _slug
 import hashlib as _hashlib
-from . import types as _types
+from .. import types as _types
 
 
 def truncate_for_postgres(name: str) -> str:
@@ -87,3 +87,7 @@ def create_database(conn_str: _sae.URL | str):
     drop_database(conn_str)
     if not _su.database_exists(str(conn_str)):
         _su.create_database(str(conn_str))
+
+
+def load_schema(url: _sae.URL | str, schema: _types.SchemaDef):
+    """Uses the schema definition to create the schema inside the passed database url"""

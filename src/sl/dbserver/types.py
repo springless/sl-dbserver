@@ -29,6 +29,30 @@ class CreatedDb(_pyd.BaseModel):
     )
 
 
+class SchemaDef(_pyd.BaseModel):
+    """Define how to load the schema"""
+
+    type: _t.Literal["sqlalchemy", "file", "raw", "detect"] = _pyd.Field(
+        default="detect",
+        title="Type",
+        description=(
+            "Specifies the type of `value`:\n"
+            + "`sqlalchemy` - A path to a sqlalchemy metadata object; eg: "
+            + "`sl.module.db:metadata`\n"
+            + "`file` - The path to a SQL file that should be run to build the models. It is "
+            + "recommended that this be an absolute path, and the file must be resident on "
+            + "the same filesystem on which the server is running. eg: `/path/to/file.sql`\n"
+            + "`raw` - Raw SQL passed in through the value which will create the schema."
+        ),
+    )
+    value: str = _pyd.Field(
+        title="Value",
+        description=(
+            "Value that corresponds to the type. See the type field for more information."
+        ),
+    )
+
+
 class CreateDbArgs(_pyd.BaseModel):
     url: str = _pyd.Field(
         title="Connection string",
@@ -57,7 +81,18 @@ class CreateDbArgs(_pyd.BaseModel):
         description=(
             "Credentials for a user with database creation privileges, if different from the "
             + "credentials provided in the url. If the user credentials provided in the URL can "
-            + "create database this can be omitted."
+            + "create database this can be omitted. Once the database is created, the username "
+            + "provided in the original url will be created if they do not exist, and then be "
+            + "given ownership over the database, excluding CREATE/DROP privileges on the overall "
+            + "database."
+        ),
+    )
+    schema_def: SchemaDef = _pyd.Field(
+        alias="schema",
+        title="Schema Definition",
+        description=(
+            "Used to create the database schema after the database has been created. The schema "
+            + "will be created and owned by the user given in the `url` field, not the admin"
         ),
     )
 
