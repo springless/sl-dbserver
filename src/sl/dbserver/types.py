@@ -27,6 +27,9 @@ class CreatedDb(_pyd.BaseModel):
         title="URL",
         description="URL string to use to connect to the newly-created database",
     )
+    drop_id: str = _pyd.Field(
+        title="Drop ID", description="Use this value to drop the database later."
+    )
 
 
 class SchemaDef(_pyd.BaseModel):
@@ -57,7 +60,8 @@ class CreateDbArgs(_pyd.BaseModel):
     url: str = _pyd.Field(
         title="Connection string",
         description=(
-            "A database connection string, eg: `postgres://user:password@localhost:5432/db_name`"
+            "A database connection string, eg: `postgres://user:password@localhost:5432/db_name`. "
+            + "The user/password combination must have database CREATE privileges."
         ),
     )
     append_name: str = _pyd.Field(
@@ -75,42 +79,19 @@ class CreateDbArgs(_pyd.BaseModel):
             + "differentiate different runs of the same test"
         ),
     )
-    admin: Credentials | None = _pyd.Field(
-        default=None,
-        title="Admin Credentials",
-        description=(
-            "Credentials for a user with database creation privileges, if different from the "
-            + "credentials provided in the url. If the user credentials provided in the URL can "
-            + "create database this can be omitted. Once the database is created, the username "
-            + "provided in the original url will be created if they do not exist, and then be "
-            + "given ownership over the database, excluding CREATE/DROP privileges on the overall "
-            + "database."
-        ),
-    )
     schema_def: SchemaDef = _pyd.Field(
         alias="schema",
         title="Schema Definition",
         description=(
-            "Used to create the database schema after the database has been created. The schema "
-            + "will be created and owned by the user given in the `url` field, not the admin"
+            "Used to create the database schema after the database has been created."
         ),
     )
 
 
 class DropDbArgs(_pyd.BaseModel):
-    conn: str = _pyd.Field(
-        title="Connection string",
+    drop_id: str = _pyd.Field(
+        title="Drop ID",
         description=(
-            "The connection string passed back to you from the initial database creation, **not** "
-            + "the one passed to create the database."
-        ),
-    )
-    admin: Credentials | None = _pyd.Field(
-        default=None,
-        title="Admin Credentials",
-        description=(
-            "Credentials for a user with database dropping privileges, if different from the "
-            + "credentials provided in the url. If the user credentials provided in the URL can "
-            + "create database this can be omitted."
+            "The `drop_id` passed back to you from the initial database creation."
         ),
     )

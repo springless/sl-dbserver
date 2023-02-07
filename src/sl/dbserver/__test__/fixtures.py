@@ -15,3 +15,8 @@ def sldb_test_url(pytestconfig) -> str:
     if db_url is None:
         db_url = pytestconfig.getini("testdb")
     return db_url
+
+
+@_pytest.fixture(scope="function")
+def sldb_test_schema_module() -> str:
+    return "sl.dbserver.__test__.db.models:metadata"

@@ -1,38 +1,46 @@
-import typing as _t
 import fastapi as _fapi
-import dataclasses as _dc
-from slugify import slugify
-from pydantic import BaseModel
+import datetime as _dt
 from .util import db as _dbu
 from . import types as _types
 
 
-@_dc.dataclass
-class MakeDBParams:
-    conn: str
-
-
-class CreateDbSuccess(BaseModel):
-    result: _t.Literal["Ok"] = "Ok"
-    url: str
-
-
 def create_db(args: _types.CreateDbArgs = _fapi.Body()) -> _types.CreatedDb:
     """Create a new database based on the passed-in connection string and options."""
-    conn_url = _dbu.make_url(args.url)
-    if isinstance(conn_url, _types.ApiError):
-        raise conn_url.to_httperr()
+    passed_url = _dbu.make_url(args.url)
+    if isinstance(passed_url, _types.ApiError):
+        raise passed_url.to_httperr()
 
-    if not conn_url.database:
+    if not passed_url.database:
         raise Exception("No database found in parsed URL string")
 
-    new_conn_url = conn_url.set(
-        database=conn_url.database + "-" + slugify(args.append_name)
+    new_url = passed_url.set(
+        database=_dbu.make_db_name(
+            passed_url.database,
+            append=args.append_name or "",
+            at_timestamp=_dt.datetime.now() if args.with_timestamp else None,
+        )
     )
 
-    _dbu.create_database(new_conn_url)
+    _dbu.create_database(new_url)
 
-    return _types.CreatedDb(url=str(new_conn_url))
+    return _types.CreatedDb(url=str(new_url), drop_id=str(new_url))
+
+
+def drop_db(args: _types.DropDbArgs = _fapi.Body()) -> None:
+    """Drop a created database"""
+    passed_url = _dbu.make_url(args.drop_id)
+
+    if isinstance(passed_url, _types.ApiError):
+        raise passed_url.to_httperr()
+
+    if not passed_url.database:
+        raise _types.ApiError(
+            message="No database found in parsed URL string"
+        ).to_httperr()
+
+    _dbu.drop_database(passed_url)
+
+    return None
 
 
 def build_app():

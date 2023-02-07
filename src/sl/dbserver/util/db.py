@@ -67,6 +67,19 @@ def make_url(conn_str: str) -> _sae.URL | _types.ApiError:
         return _types.ApiError(message="Invalid URL")
 
 
+def swap_credentials(url: _sae.URL, credentials: _types.Credentials) -> _sae.URL:
+    return url.set(
+        username=credentials.username,
+        password=credentials.password,
+    )
+
+
+def swap_database(url: _sae.URL, database: str) -> _sae.URL:
+    return url.set(
+        database=database,
+    )
+
+
 def drop_database(conn_str: _sae.URL | str):
     """Uses the provided connection string to ensure that the database it points to does not
     exist.
