@@ -26,6 +26,8 @@ dev_requires = [
     "types-python-dateutil >= 2, < 3",
     "black                 >= 23",
     "alembic               >= 1",
+    "build",
+    "twine",
 ]
 
 setup(
