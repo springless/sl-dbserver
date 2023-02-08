@@ -1,7 +1,8 @@
-_testdb_help=(
+_testdb_help = (
     "URL of the testing server, in standard database URL format; eg: "
     + "`postgresql://user:pass@localhost:5432/test`"
 )
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -14,4 +15,3 @@ def pytest_addoption(parser):
         "testdb",
         help=_testdb_help,
     )
-
