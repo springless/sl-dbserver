@@ -1,4 +1,5 @@
-import importlib.util
+import importlib.util as _ilu
+import importlib as _il
 import os
 from os.path import exists
 import json
@@ -43,15 +44,36 @@ def module_path(path: str) -> str:
     if ":" in path:
         # If a colon does exist then we know for a fact that the lefthand side is meant to be a python module
         module, append = path.split(":")
-        dir_path = os.path.dirname(importlib.util.find_spec(module).origin)
+        spec = _ilu.find_spec(module)
+        if not spec or not spec.origin:
+            raise ValueError(f"Module `{module}` does not appear to exist")
+        dir_path = os.path.dirname(spec.origin)
         # Return the directory path plus the apended value
         return os.path.join(dir_path, os.path.normpath(append))
     # If there are no slashes and no colon, attempt to read the path as a module
     elif not ("/" in path or "\\" in path):
-        return os.path.dirname(importlib.util.find_spec(path).origin)
+        spec = _ilu.find_spec(path)
+        if not spec or not spec.origin:
+            raise ValueError(f"Module `{path}` does not appear to exist")
+        return os.path.dirname(spec.origin)
 
     # Otherwise this does not conform to anything we recognize; return the path unchanged
     return path
+
+
+def import_from_str(module_name):
+    """To import a module, just write it as you would a regular module:
+        `my.module.path`
+    To import a specific variable/function from the module, include the
+    variable/function name after a colon:
+        `my.module.path:var_name`
+    """
+    if ":" in module_name:
+        module_str, var_str = module_name.split(":")
+        module = _il.import_module(module_str)
+        return module.__dict__[var_str]
+    else:
+        return _il.import_module(module_name)
 
 
 def json_to_str(val: Any, *, sort_keys: bool = True, indent: int = 2) -> str:

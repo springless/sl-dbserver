@@ -1,10 +1,9 @@
-import sqlalchemy_utils as _su
 import sqlalchemy.engine as _sae
 import sqlalchemy.exc as _saex
+import hashlib as _hashlib
 import datetime as _dt
 import slugify as _slug
-import hashlib as _hashlib
-from .. import types as _types
+from ... import types as _types
 
 
 def truncate_for_postgres(name: str) -> str:
@@ -65,42 +64,3 @@ def make_url(conn_str: str) -> _sae.URL | _types.ApiError:
         return _sae.make_url(conn_str)
     except _saex.ArgumentError:
         return _types.ApiError(message="Invalid URL")
-
-
-def swap_credentials(url: _sae.URL, credentials: _types.Credentials) -> _sae.URL:
-    return url.set(
-        username=credentials.username,
-        password=credentials.password,
-    )
-
-
-def swap_database(url: _sae.URL, database: str) -> _sae.URL:
-    return url.set(
-        database=database,
-    )
-
-
-def drop_database(conn_str: _sae.URL | str):
-    """Uses the provided connection string to ensure that the database it points to does not
-    exist.
-    """
-    if _su.database_exists(str(conn_str)):
-        _su.drop_database(str(conn_str))
-
-
-def create_database(conn_str: _sae.URL | str):
-    """Uses the provided connection string to ensure that the database it points to exists.
-    If the database already exists, then it will destroy and recreate it.
-
-    TODO - cogs - 20230206
-    If there is a disparity between the user creating the database and the user that will be
-    using the database, then will use the admin credentials to create the datbase, and then grant
-    creation privileges to the non-admin user.
-    """
-    drop_database(conn_str)
-    if not _su.database_exists(str(conn_str)):
-        _su.create_database(str(conn_str))
-
-
-def load_schema(url: _sae.URL | str, schema: _types.SchemaDef):
-    """Uses the schema definition to create the schema inside the passed database url"""

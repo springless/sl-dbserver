@@ -1,6 +1,6 @@
 from unittest import TestCase as _TestCase
 import datetime as _dt
-from . import db as _dbu
+from . import url as _dbu
 
 _TC = _TestCase()
 
