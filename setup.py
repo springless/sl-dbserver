@@ -8,25 +8,26 @@ with open(os.path.join(here, "README.md")) as f:
 requires = [
     # For DB management
     "sqlalchemy[asyncio]          >= 1, < 2",
-    "databases[asyncpg,aiosqlite] >= 0.6, < 2",
-    "python-dateutil              >= 2, < 4",
-    "sqlalchemy-utils             >= 0, < 1",
-    "psycopg2-binary              >= 2, < 3",
-    "python-slugify               >= 7",
+    "python-dateutil              >= 2",
+    "sqlalchemy-utils",
+    "psycopg2-binary              >= 2",
+    "python-slugify               >= 4",
     # For server
-    "starlette                    >= 0, < 1",
-    "fastapi[all]                 >= 0, < 1",
+    "fastapi[all]",
+    "uvicorn[standard]",
 ]
 
 dev_requires = [
-    "pytest                >= 7, < 8",
-    "pytest-cov            >= 4, < 5",
-    "pytest-asyncio        >= 0.17, < 1",
+    "pytest                >= 7",
+    "pytest-cov            >= 4",
+    "pytest-asyncio        >= 0.17",
     "mypy                  >= 0.812",
-    "uvicorn[standard]     >= 0, < 1",
-    "requests              >= 2, < 3",  # for starlette testing
-    "types-python-dateutil >= 2, < 3",  # Types for dateutil (for mypy)
-    "black                 >= 23, < 24",
+    "requests              >= 2, < 3",
+    "types-python-dateutil >= 2, < 3",
+    "black                 >= 23",
+    "alembic               >= 1",
+    "build",
+    "twine",
 ]
 
 setup(
@@ -49,11 +50,12 @@ setup(
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Toptic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Software Development :: Testing",
     ],
-    entry_pointts={
+    entry_points={
         "console_scripts": [
-            "sl-dbserver=sl.dbserver.cli:main",
+            "sl-dbserver=sl.dbserver.cli:start_server",
         ],
     },
     keywords="sl springless database server testing postgresql",
