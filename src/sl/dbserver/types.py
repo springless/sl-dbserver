@@ -32,20 +32,21 @@ class CreatedDb(_pyd.BaseModel):
     )
 
 
+_schemadef_type_desc = """\
+Specifies the type of `value`:
+- `sqlalchemy` - A path to a sqlalchemy metadata object; eg: `sl.module.db:metadata`.
+- `file` - The path to a SQL file that should be run to build the models. It is recommended that
+this be an absolute path, and the file must be resident on the same filesystem on which the server
+is running. eg: `/path/to/file.sql`.
+- `raw_sql` - Raw SQL passed in through the value which will create the schema.
+"""
+
+
 class SchemaDef(_pyd.BaseModel):
     """Define how to load the schema"""
 
     type: _t.Literal["sqlalchemy"] = _pyd.Field(
-        title="Type",
-        description=(
-            "Specifies the type of `value`:\n"
-            + "`sqlalchemy` - A path to a sqlalchemy metadata object; eg: "
-            + "`sl.module.db:metadata`\n"
-            + "`file` - The path to a SQL file that should be run to build the models. It is "
-            + "recommended that this be an absolute path, and the file must be resident on "
-            + "the same filesystem on which the server is running. eg: `/path/to/file.sql`\n"
-            + "`raw_sql` - Raw SQL passed in through the value which will create the schema."
-        ),
+        title="Type", description=_schemadef_type_desc
     )
     value: str = _pyd.Field(
         title="Value",
@@ -55,31 +56,47 @@ class SchemaDef(_pyd.BaseModel):
     )
 
 
+_seeddata_type_desc = """\
+Specifies the type of `value`:
+- `json` - Raw JSON-formatted data, structured as:
+```
+{
+    "metadata": "abs.path.to.module:metadata",
+    "data": {
+        "table_1_name": [
+            {
+                "int_col": 1,
+                "str_col": "value",
+                ...
+            },
+            ...entries
+        ],
+        "table_2_name": [ ...entries ],
+        ...tables
+    }
+}
+```
+- `sql` - Raw SQL containing `INSERT`/`UPDATE`/etc. statements.
+- `file` - Path to file local to the dbserver containing `json`/`sql` data structured as described
+above
+- `module` - Module path to a file local to the dbserver containing `json`/`sql` data structured
+as described above. A module path consists of a python module, followed by a colon, then the rest
+of the path to the file. eg. `sl.dbserver.__test__:seeds/test.json`. The module path portion can
+only include directories recognizable as Python modules (ie. containing an `__init__.py` file).
+Any subdirectories after that point which are not python modules must be included after the colon.
+"""
+
+
 class SeedData(_pyd.BaseModel):
     """Define a source for seed data for the newly created database"""
 
     type: _t.Literal["json", "sql", "file", "module"] = _pyd.Field(
-        description=(
-            "Specifies the type of `value`:\n"
-            + "`json` - Raw JSON-formatted data, structured as: \n"
-            + "```\n"
-            + "{\n"
-            + '  "metadata": "abs.path.to.module:metadata",\n'
-            + '  "data": {\n'
-            + '    "table_name": [{ ...entries }],\n'
-            + "    ...tables\n"
-            + "  }\n"
-            + "}\n"
-            + "```\n"
-            + "where each entry has properties corresponding to the columns on the table\n"
-            + "`sql` - Raw SQL containing INSERT/UPDATE/etc. statements directly\n"
-            + "`file` - File local to the dbserver containing `json`/`sql` data structured as described above\n"
-            + "`module` - Module path to a file local to the dbserver containing `json`/`sql` data structured as described above. A module path consists of a python module, followed by a colon, then the rest of the path to the file. eg. `sl.dbserver.__test__:seeds/test.json`"
-        )
+        title="Type",
+        description=_seeddata_type_desc,
     )
     value: str = _pyd.Field(
         title="Value",
-        descriptionn=(
+        description=(
             "Value that corresponds to the type. See the type field for more information."
         ),
     )
