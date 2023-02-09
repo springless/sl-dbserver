@@ -36,7 +36,18 @@ def sldb_test_seed_data() -> _t.List[_types.SeedData]:
 
 
 @_pytest.fixture(scope="function")
-def sldb_url(sldb_test_url, sldb_test_schema_module, request, sldb_test_seed_data):
+def sldb_test_reset_seq() -> bool:
+    return True
+
+
+@_pytest.fixture(scope="function")
+def sldb_url(
+    sldb_test_url,
+    sldb_test_schema_module,
+    request,
+    sldb_test_seed_data,
+    sldb_test_reset_seq,
+):
     """Creates, yields, and cleans up a testing database"""
     test_name = request.node.name
     response = _app.create_db(
@@ -49,6 +60,7 @@ def sldb_url(sldb_test_url, sldb_test_schema_module, request, sldb_test_seed_dat
                 value=sldb_test_schema_module,
             ),
             seeds=sldb_test_seed_data,
+            reset_seq=sldb_test_reset_seq,
         )
     )
     yield response.url

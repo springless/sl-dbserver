@@ -1,9 +1,12 @@
 import fastapi as _fapi
 import datetime as _dt
+import sqlalchemy as _sa
+import sqlalchemy.engine as _sae
 from .util.db import (
     url as _dbu_url,
     conn as _dbu_conn,
 )
+from .util import file as _fu
 from . import (
     types as _types,
     db as _db,
@@ -30,8 +33,12 @@ def create_db(args: _types.CreateDbArgs = _fapi.Body()) -> _types.CreatedDb:
     try:
         _dbu_conn.create_database(new_url)
         _db.create_schema(new_url, args.schema_def)
-        for seed_data in args.seeds:
-            _db.load_seed_data(new_url, seed_data)
+        _db.load_seed_data_list(
+            new_url,
+            args.seeds,
+            reset_seq=args.reset_seq,
+            schema=args.schema_def,
+        )
     except Exception as e:
         if not args.keep_db_on_error:
             _dbu_conn.drop_database(new_url)

@@ -1,4 +1,5 @@
 VENV_DIR := ./.venv
+TEST_SERVER_PORT := 8000
 
 rem-venv:
 	-rm -rf $(VENV_DIR)
@@ -13,5 +14,11 @@ build-release:
 	-rm -rf dist
 	$(VENV_DIR)/bin/python -m build .
 
+test-server:
+	$(VENV_DIR)/bin/uvicorn sl.dbserver.app:main --reload --port $(TEST_SERVER_PORT)
+
 push-release: build-release
 	$(VENV_DIR)/bin/twine upload dist/*
+
+test-db:
+	docker-compose up

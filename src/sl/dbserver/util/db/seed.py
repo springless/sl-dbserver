@@ -17,7 +17,7 @@ def _yield_all_columns(table: _sa.Table):
     yield from table.c
 
 
-def reset_pg_increments(conn: _saeb.Connection, metadata: _sa.MetaData):
+def reset_pg_seq(conn: _saeb.Connection, metadata: _sa.MetaData):
     """When loading data with postgresql any auto-incrementing counters are not automatically
     accounted for, so this will go through every column in every table, check if it has a
     counter, and if it does, set the value of that counter to the maximum value currently held
@@ -52,7 +52,7 @@ def reset_pg_increments(conn: _saeb.Connection, metadata: _sa.MetaData):
                 )
 
 
-def load_json_seed(url: _sae.URL | str, seed: str):
+def load_json_seed(conn: _sae.Connection, seed: str):
     parsed = _fu.str_to_json(seed)
     metadata_str = parsed.get("metadata")
     if not metadata_str:
@@ -66,16 +66,12 @@ def load_json_seed(url: _sae.URL | str, seed: str):
             message="JSON Seed data does not specify any seed data"
         ).to_httperr()
 
-    engine = _sae.create_engine(url)
-    with _dbu_conn.disabled_constraints(engine) as conn:
-        _dbu_ser.deserialize_db(
-            metadata,
-            parsed,
-            conn=conn,
-        )
+    _dbu_ser.deserialize_db(
+        metadata,
+        parsed,
+        conn=conn,
+    )
 
 
-def load_sql_seed(url: _sae.URL | str, seed: str):
-    engine = _sae.create_engine(url)
-    with _dbu_conn.disabled_constraints(engine) as conn:
-        conn.execute(seed)
+def load_sql_seed(conn: _sae.Connection, seed: str):
+    conn.execute(seed)
