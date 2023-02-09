@@ -107,7 +107,7 @@ class CreateDbArgs(_pyd.BaseModel):
         title="Connection string",
         description=(
             "A database connection string, eg: `postgres://user:password@localhost:5432/db_name`. "
-            + "The user/password combination must have database CREATE privileges."
+            "The user/password combination must have database CREATE privileges."
         ),
     )
     append_name: str = _pyd.Field(
@@ -122,7 +122,7 @@ class CreateDbArgs(_pyd.BaseModel):
         title="With timestamp",
         description=(
             'Set to "true" to include a timestamp in a created database name. This can help '
-            + "differentiate different runs of the same test"
+            "differentiate different runs of the same test"
         ),
     )
     schema_def: SchemaDef = _pyd.Field(
@@ -147,6 +147,22 @@ class CreateDbArgs(_pyd.BaseModel):
             "By default an error while creating the database will cause the server to return the "
             "error raised and clean up the broken build. Setting this value to `true` will keep "
             "the broken database intact."
+        ),
+    )
+    reset_seq: bool = _pyd.Field(
+        default=False,
+        title="Reset sequences",
+        description=(
+            "When using a SQLAlchemy module as the schema, any autoincrement sequences in the "
+            "database will **not** be automatically set correctly to the maximum value of the "
+            "inserted items. This can lead to insert problems later, where a newly inserted "
+            "value will attempt to take an ID already taken by another item in the database. "
+            "This option **only** works when using a sqlalchemy metadata object to load the "
+            "schema, and will find all of the known autoincrementing sequences and set them equal "
+            "to the highest value in the column that the sequence is attached to. It will do "
+            "this only if seed values are loaded, and only if the schema was loaded via a "
+            "sqlalchemy MetaData object. If loading via SQL just make sure to set the sequences "
+            "properly as part of loading the seed."
         ),
     )
 

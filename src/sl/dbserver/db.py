@@ -1,16 +1,21 @@
+import typing as _t
+import sqlalchemy as _sa
 import sqlalchemy.engine as _sae
 import pathlib as _pl
 from .util import file as _fu
 from . import types as _types
-from .util.db import schema as _dbus
-from .util.db import seed as _db_seed
+from .util.db import (
+    schema as _dbu_schema,
+    seed as _dbu_seed,
+    conn as _dbu_conn,
+)
 
 
 def create_schema(url: _sae.URL | str, schema: _types.SchemaDef):
     """Uses the schema definition to create the schema inside the passed database url"""
     match schema.type:
         case "sqlalchemy":
-            _dbus.load_sqlalchemy_schema(url, schema.value)
+            _dbu_schema.load_sqlalchemy_schema(url, schema.value)
 
 
 def _seed_data_from_file(fname: str) -> _types.SeedData:
@@ -38,7 +43,24 @@ def _seed_data_from_module(modname: str) -> _types.SeedData:
     return _seed_data_from_file(fname)
 
 
-def load_seed_data(url: _sae.URL | str, seed: _types.SeedData):
+def load_seed_data_list(
+    url: _sae.URL | str,
+    seeds: _t.List[_types.SeedData],
+    *,
+    reset_seq: bool,
+    schema: _types.SchemaDef,
+):
+    if len(seeds) <= 0:
+        return
+    engine = _sae.create_engine(url)
+    with _dbu_conn.disabled_constraints(engine) as conn:
+        for seed in seeds:
+            load_seed_data(conn, seed)
+        if reset_seq:
+            _reset_seq(conn, schema)
+
+
+def load_seed_data(conn: _sae.Connection, seed: _types.SeedData):
     if seed.type == "file":
         seed = _seed_data_from_file(seed.value)
     if seed.type == "module":
@@ -47,6 +69,20 @@ def load_seed_data(url: _sae.URL | str, seed: _types.SeedData):
     # at this point seed should have either a "json" or "sql" type
     match seed.type:
         case "json":
-            _db_seed.load_json_seed(url, seed.value)
+            _dbu_seed.load_json_seed(conn, seed.value)
         case "sql":
-            _db_seed.load_sql_seed(url, seed.value)
+            _dbu_seed.load_sql_seed(conn, seed.value)
+
+
+def _reset_seq(conn: _sae.Connection, schema: _types.SchemaDef):
+    if schema.type != "sqlalchemy":
+        # nothing to do
+        return
+
+    metadata = _fu.import_from_str(schema.value)
+    if not metadata or not isinstance(metadata, _sa.MetaData):
+        raise _types.ApiError(
+            message=f"Not a valid metadata module: {schema.value}"
+        ).to_httperr()
+
+    _dbu_seed.reset_pg_seq(conn, metadata)

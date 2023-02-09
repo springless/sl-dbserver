@@ -23,6 +23,7 @@ def test_create_drop_test_db(sldb_test_url, sldb_test_schema_module):
                     type="module", value="sl.dbserver.__test__:seeds/test01.json"
                 )
             ],
+            reset_seq=True,
         )
     )
     _TC.assertTrue(_su.database_exists(response.url))
@@ -43,6 +44,21 @@ def test_create_drop_test_db(sldb_test_url, sldb_test_schema_module):
     # destroy the database, afterwards
     _app.drop_db(_types.DropDbArgs(drop_id=response.drop_id))
     _TC.assertFalse(_su.database_exists(response.url))
+
+
+def test_reset_seq(sldb_conn: _sae.Connection):
+    user_seq = sldb_conn.exec_driver_sql("SELECT last_value FROM user_id_seq").one()
+    _TC.assertEqual(user_seq, (2,))
+
+
+class TestNoResetSeq:
+    @_pytest.fixture(scope="function")
+    def sldb_test_reset_seq(self):
+        return False
+
+    def test_no_reset_seq(self, sldb_conn: _sae.Connection):
+        user_seq = sldb_conn.exec_driver_sql("SELECT last_value FROM user_id_seq").one()
+        _TC.assertEqual(user_seq, (1,))
 
 
 class TestSqlLoad:
