@@ -14,6 +14,13 @@ def load_sqlalchemy_schema(url: _sae.URL | str, value: str):
     metadata.create_all(engine)
 
 
+def load_sql_schema(url: _sae.URL | str, value: str):
+    engine = _sae.create_engine(url)
+    with engine.connect() as conn:
+        with conn.begin():
+            conn.execute(value)
+
+
 def metadata_from_str(metadata_str: str) -> _sa.MetaData:
     metadata = _fu.import_from_str(metadata_str)
     if not isinstance(metadata, _sa.MetaData):

@@ -29,6 +29,11 @@ def sldb_test_schema_module() -> str:
 
 
 @_pytest.fixture(scope="function")
+def sldb_test_schema_def(sldb_test_schema_module) -> _types.SchemaDef:
+    return _types.SchemaDef(type="sqlalchemy", value=sldb_test_schema_module)
+
+
+@_pytest.fixture(scope="function")
 def sldb_test_seed_data() -> _t.List[_types.SeedData]:
     return [
         _types.SeedData(type="module", value="sl.dbserver.__test__:seeds/test01.json")
@@ -43,7 +48,7 @@ def sldb_test_reset_seq() -> bool:
 @_pytest.fixture(scope="function")
 def sldb_url(
     sldb_test_url,
-    sldb_test_schema_module,
+    sldb_test_schema_def,
     request,
     sldb_test_seed_data,
     sldb_test_reset_seq,
@@ -55,10 +60,7 @@ def sldb_url(
             url=sldb_test_url,
             append_name=test_name,
             with_timestamp=True,
-            schema=_types.SchemaDef(
-                type="sqlalchemy",
-                value=sldb_test_schema_module,
-            ),
+            schema=sldb_test_schema_def,
             seeds=sldb_test_seed_data,
             reset_seq=sldb_test_reset_seq,
         )

@@ -7,6 +7,7 @@ import pytest as _pytest
 from . import app as _app
 from . import types as _types
 from .__test__.db import models as _m
+from .util import file as _file
 
 _TC = _ut.TestCase()
 
@@ -71,6 +72,42 @@ class TestSqlLoad:
         ]
 
     def test_load_sql_seed(self, sldb_conn):
+        all_users = sldb_conn.execute(_sa.select(_m.User)).all()
+        _TC.assertEqual(
+            all_users,
+            [
+                (1, "user1", "user1@email.com"),
+                (2, "user2", "user2@email.com"),
+            ],
+        )
+
+
+class TestSqlSchema:
+    @_pytest.fixture(scope="function")
+    def sldb_test_schema_def(self) -> _types.SchemaDef:
+        path_to_schema = _file.module_path("sl.dbserver.__test__:schema.sql")
+        return _types.SchemaDef(type="file", value=path_to_schema)
+
+    def test_load_sql_schema(self, sldb_conn):
+        all_users = sldb_conn.execute(_sa.select(_m.User)).all()
+        _TC.assertEqual(
+            all_users,
+            [
+                (1, "user1", "user1@email.com"),
+                (2, "user2", "user2@email.com"),
+            ],
+        )
+
+
+class TestRawSqlSchema:
+    @_pytest.fixture(scope="function")
+    def sldb_test_schema_def(self) -> _types.SchemaDef:
+        path_to_schema = _file.module_path("sl.dbserver.__test__:schema.sql")
+        with open(path_to_schema, "r") as f:
+            raw_sql = f.read()
+        return _types.SchemaDef(type="raw_sql", value=raw_sql)
+
+    def test_load_sql_schema(self, sldb_conn):
         all_users = sldb_conn.execute(_sa.select(_m.User)).all()
         _TC.assertEqual(
             all_users,
