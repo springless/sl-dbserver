@@ -45,7 +45,7 @@ is running. eg: `/path/to/file.sql`.
 class SchemaDef(_pyd.BaseModel):
     """Define how to load the schema"""
 
-    type: _t.Literal["sqlalchemy"] = _pyd.Field(
+    type: _t.Literal["sqlalchemy", "file", "raw_sql"] = _pyd.Field(
         title="Type", description=_schemadef_type_desc
     )
     value: str = _pyd.Field(

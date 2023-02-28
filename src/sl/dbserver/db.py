@@ -16,6 +16,12 @@ def create_schema(url: _sae.URL | str, schema: _types.SchemaDef):
     match schema.type:
         case "sqlalchemy":
             _dbu_schema.load_sqlalchemy_schema(url, schema.value)
+        case "file":
+            with open(schema.value, "r") as f:
+                fdata = f.read()
+            _dbu_schema.load_sql_schema(url, fdata)
+        case "raw_sql":
+            _dbu_schema.load_sql_schema(url, schema.value)
 
 
 def _seed_data_from_file(fname: str) -> _types.SeedData:
