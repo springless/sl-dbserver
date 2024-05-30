@@ -32,7 +32,7 @@ dev_requires = [
 
 setup(
     name="sl-dbserver",
-    version="0.0.0",
+    version="0.0.1a2",
     license="MIT",
     description="Springless Database Server",
     long_description=README,
