@@ -33,6 +33,16 @@ def test_make_db_name_long():
         "20220423140534_my_database_my_appended_and_very_long_tes5119",
     )
 
+def test_make_db_name_long_2():
+    created_name = _dbu.make_db_name(
+        "my_database",
+        append="My appended and very long test name string thing",
+        at_timestamp=_use_timestamp,
+    )
+    _TC.assertEqual(
+        created_name,
+        "20220423140534_my_database_my_appended_and_very_long_tesbf3f",
+    )
 
 def test_make_db_name_no_timestamp():
     created_name = _dbu.make_db_name(
