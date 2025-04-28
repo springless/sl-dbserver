@@ -74,4 +74,5 @@ def load_json_seed(conn: _sae.Connection, seed: str):
 
 
 def load_sql_seed(conn: _sae.Connection, seed: str):
-    conn.execute(seed)
+    with conn.begin():
+        conn.execute(seed)
